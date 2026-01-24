@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+playwright
+playwright-stealth
+httpx
+python-dotenv
+pydantic
+pytest
+asyncio
+beautifulsoup4
