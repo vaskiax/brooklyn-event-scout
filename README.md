@@ -1,4 +1,4 @@
-# Event-Driven Alerts Engine (Brooklyn Sector)
+# Brooklyn Event Scout (Hyper-Local Ingestion Engine)
 
 An automated, ultra-resilient data ingestion and notification system designed to monitor and report on sports events, community gatherings, and weather alerts specifically for the **Brooklyn / Prospect Park** area.
 
