@@ -1,0 +1,25 @@
+# Exclude non-essential files from deployment
+.git
+.gitignore
+.gcloudignore
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+requirements.txt.old
+*.html
+*.png
+*.csv
+nyrr_debug.html
+prospect_park_cf_fail.html
+prospect_park_debug.html
+prospect_park_sb_debug.html
+
+# Exclude local test scripts that use heavy dependencies
+src/test_*.py
+src/verify_nyrr_screenshot.py
+src/debug_*.py
+src/demo_*.py
