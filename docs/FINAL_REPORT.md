@@ -29,9 +29,12 @@ The system is designed for **minimum overhead**.
 | Service | Estimated Monthly Cost |
 | :--- | :--- |
 | **Google Cloud Functions** | $0.00 (within free tier) |
-| **Cloud Scheduler** | $0.10 (per trigger) |
+| **Cloud Scheduler** | $0.00 (within free tier) |
 | **Secret Manager** | $0.06 (secure storage) |
-| **Total Est.** | **$0.16 / Month** |
+| **Total Est.** | **$0.06 / Month** |
+
+> [!NOTE]
+> For a detailed line-by-line analysis, see [COST_REPORT.md](file:///c:/Users/ANDREY/OneDrive/Escritorio/event-driven-alerts/docs/COST_REPORT.md).
 
 ---
 

@@ -16,7 +16,8 @@ class ReportGenerator:
         
         # Source breakdown
         nyrr_count = len([e for e in events if "NYRR" in e.source])
-        pp_count = len([e for e in events if "ProspectPark" in e.source or "Prospect Park" in e.venue])
+        pp_count = len([e for e in events if "Prospect Park" in e.source or "Prospect Park" in e.venue])
+        w_count = len([e for e in events if "Weather" in e.source])
 
         rows_html = ""
         for event in events:
@@ -58,6 +59,7 @@ class ReportGenerator:
                 <ul>
                     <li><strong>NYRR:</strong> {nyrr_count} races</li>
                     <li><strong>Prospect Park:</strong> {pp_count} events</li>
+                    <li><strong>Weather:</strong> {w_count} alerts</li>
                 </ul>
 
                 <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
