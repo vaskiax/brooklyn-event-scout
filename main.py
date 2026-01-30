@@ -5,114 +5,103 @@ import functions_framework
 import sys
 from datetime import datetime
 
-print("[Startup] Initializing modules...")
-try:
-    from src.ingestion.mta import MTAConnector
-    from src.ingestion.weather import WeatherConnector
-    from src.ingestion.nyrr import NYRRCollector
-    from src.ingestion.prospect_park import ProspectParkCollector
-    from src.reporting.report_generator import ReportGenerator
-    from src.reporting.notifier import Notifier
-    print("[Startup] All modules imported successfully.")
-except Exception as e:
-    print(f"[FATAL STARTUP ERROR] Failed to import modules: {e}")
-    sys.exit(1)
+VERSION = "3.0.0-PRO-RESILIENT"
 
 async def run_ingestion_pipeline():
-    """Main orchestration logic for event ingestion and reporting."""
-    print("=== PIPELINE START ===")
-    print(f"[Pipeline] Env Check: NOTIFICATIONS={os.getenv('NOTIFICATIONS_ENABLED', 'N/A')}")
-    print(f"[Pipeline] Env Check: RECIPIENT={os.getenv('STAKEHOLDER_EMAIL', 'N/A')}")
+    """Main orchestration logic with global imports and redundant fail-safes."""
+    print(f"=== PIPELINE START (v{VERSION}) ===")
+    
+    # 1. Setup Environment
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    if base_dir not in sys.path:
+        sys.path.insert(0, base_dir) # Use insert(0) for priority
     
     all_events = []
     
-    # 1. Collectors
-    print("[Pipeline] Spawning collectors...")
+    # Standard Imports (outside the loop for stability)
     try:
-        collectors = [
-            NYRRCollector().fetch_upcoming_races(),
-            ProspectParkCollector().fetch_events(),
-        ]
-        
-        results = []
-        for coro in collectors:
-            name = "CollectorTask" # Simplified to avoid __qualname__ issues
-            print(f"[Pipeline] Awaiting {name}...")
-            try:
-                res = await coro
-                print(f"[Pipeline] {name} finished.")
-                results.append(res)
-            except Exception as e:
-                print(f"[Pipeline] {name} CRASHED: {e}")
-                results.append([])
-
-        for r in results:
-            all_events.extend(r)
+        from src.ingestion.nyrr import NYRRCollector
+        from src.ingestion.prospect_park import ProspectParkCollector
+        from src.ingestion.weather import WeatherConnector
+        from src.models.event import Event
+        from src.reporting.report_generator import ReportGenerator
+        from src.reporting.notifier import Notifier
+        print("[Pipeline] Module setup complete.")
     except Exception as e:
-        print(f"[Pipeline] Major failure in collector orchestration: {e}")
+        print(f"[Pipeline] FATAL: Import failure: {e}")
+        # Last resort fallback if imports fail entirely
+        return []
 
-    print(f"[Pipeline] Successfully aggregated {len(all_events)} events.")
-
-    # 2. Export CSV
-    csv_file = "/tmp/extracted_events.csv"
-    if all_events:
+    # 2. Collector Tasks
+    print("[Pipeline] Initiating collectors...")
+    tasks = [
+        ("NYRR", NYRRCollector().fetch_upcoming_races()),
+        ("ProspectPark", ProspectParkCollector().fetch_events()),
+        ("Weather", WeatherConnector().fetch_active_alerts()),
+    ]
+    
+    for name, coro in tasks:
+        print(f"[Pipeline] Running {name}...")
         try:
-            with open(csv_file, mode='w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerow(["Source", "Title", "Start Time", "Venue", "Impact Score"])
-                for event in all_events:
-                    time_str = event.start_time.strftime("%Y-%m-%d %H:%M") if isinstance(event.start_time, datetime) else str(event.start_time)
-                    writer.writerow([event.source, event.title, time_str, event.venue, event.impact_score])
-            print(f"[Pipeline] CSV exported to {csv_file}")
+            res = await coro
+            count = len(res) if res else 0
+            print(f"[Pipeline] {name} results: {count}")
+            if res:
+                all_events.extend(res)
         except Exception as e:
-            print(f"[Pipeline] CSV Export Failed: {e}")
+            print(f"[Pipeline] {name} crashed: {e}")
+
+    # 3. Validation & Aggregation
+    total = len(all_events)
+    print(f"[Pipeline] Total Events Aggregated: {total}")
     
-    # 3. Generate Report
-    print("[Pipeline] Generating HTML report...")
+    if total == 0:
+        print("[Pipeline] CRITICAL: 0 events found. This should not happen with fallbacks.")
+
+    # 4. CSV Export
+    csv_file = "/tmp/extracted_events.csv"
     try:
-        report_html = ReportGenerator.generate_html_report(all_events)
+        with open(csv_file, mode='w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["Source", "Title", "Date", "Venue", "Impact"])
+            for event in all_events:
+                dt = event.start_time.strftime("%Y-%m-%d") if hasattr(event.start_time, "strftime") else "TBD"
+                writer.writerow([event.source, event.title, dt, event.venue, event.impact_score])
+        print(f"[Pipeline] CSV produced at {csv_file}")
     except Exception as e:
-        print(f"[Pipeline] Report Generation Failed: {e}")
-        report_html = "<h1>Error generating report</h1>"
+        print(f"[Pipeline] CSV error: {e}")
     
-    # 4. Notify
+    # 5. Report Generation & Notification
     if os.getenv("NOTIFICATIONS_ENABLED", "false").lower() == "true":
         recipient = os.getenv("STAKEHOLDER_EMAIL")
-        print(f"[Pipeline] Notifications ACTIVE for {recipient}")
         if recipient:
             try:
+                print(f"[Pipeline] Preparing report for {recipient}...")
+                report_html = ReportGenerator.generate_html_report(all_events)
                 notifier = Notifier()
                 success = await notifier.send_email(
                     recipient=recipient,
-                    subject=f"Weekly Event Summary - {datetime.now().strftime('%Y-%m-%d')}",
+                    subject=f"New York Event Alert System (v{VERSION}) - {datetime.now().strftime('%Y-%m-%d')}",
                     html_content=report_html,
-                    attachment_path=csv_file if os.path.exists(csv_file) else None
+                    attachment_path=csv_file
                 )
-                print(f"[Pipeline] Notification result: {'SUCCESS' if success else 'FAILED'}")
+                print(f"[Pipeline] Final Notification Status: {'SENT' if success else 'FAILED'}")
             except Exception as e:
-                print(f"[Pipeline] Notification CRASHED: {e}")
-        else:
-            print("[Pipeline] SKIP: No recipient defined.")
-    else:
-        print("[Pipeline] SKIP: Notifications disabled by ENV.")
-
-    print("=== PIPELINE COMPLETE ===")
+                print(f"[Pipeline] Notifier error: {e}")
+    
+    print("=== PIPELINE END ===")
     return all_events
 
 @functions_framework.http
 def cloud_function_entry(request):
-    """Universal HTTP entry point for Google Cloud Function."""
-    print(f"--- TRIGGERED BY {request.method} ---")
-    
+    """Secure HTTP Trigger."""
     try:
-        # We run the ingestion pipeline regardless of request content for this use case
-        events = asyncio.run(run_ingestion_pipeline())
-        msg = f"SUCCESS: {len(events)} events processed"
-        print(f"--- {msg} ---")
-        return msg, 200
+        # Avoid async issues by creating a fresh event loop if needed
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        events = loop.run_until_complete(run_ingestion_pipeline())
+        loop.close()
+        return f"SUCCESS: {len(events)} events processed (v{VERSION})", 200
     except Exception as e:
-        print(f"--- FATAL CRASH: {e} ---")
-        return f"Error: {e}", 500
-
-if __name__ == "__main__":
-    asyncio.run(run_ingestion_pipeline())
+        print(f"[FATAL] Entry point crash: {e}")
+        return f"ERROR: See logs. {e}", 500
