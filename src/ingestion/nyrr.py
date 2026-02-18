@@ -1,80 +1,248 @@
-import httpx
-from typing import List
+import asyncio
+import json
+import logging
+from datetime import datetime, timedelta
+from typing import List, Optional
+from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
-from ..models.event import Event
-from ..utils.normalization import normalize_iso_format, strip_html
-from datetime import datetime
 
-class NYRRCollector:
-    CALENDAR_URL = "https://www.nyrr.org/run/race-calendar"
-    
-    # We will use purely HTTP + BeautifulSoup for better compatibility with serverless
-    async def fetch_upcoming_races(self) -> List[Event]:
-        events = []
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9",
-        }
+from src.ingestion.base import EventCollector
+from src.models.event import Event
+
+
+class NYRRCollector(EventCollector):
+    def __init__(self):
+        self.url = "https://www.nyrr.org/run/race-calendar"
+
+    async def fetch_events(self) -> List[Event]:
+        """
+        Dual-strategy NYRR scraper:
+          1. PRIMARY — Network Interception: capture the Haku API JSON response
+             that contains the raw event data.
+          2. FALLBACK — DOM Scraping: parse the fully-rendered HTML using the
+             known CSS selectors (div.upcoming-event, .upcoming-race-title, etc.).
+        """
+        events: List[Event] = []
+        captured_json: list = []
 
         try:
-            print(f"[NYRR] Fetching {self.CALENDAR_URL} via HTTP...")
-            async with httpx.AsyncClient(headers=headers, follow_redirects=True, timeout=30.0) as client:
-                response = await client.get(self.CALENDAR_URL)
-                
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    race_items = soup.select(".upcoming-race")
-                    for item in race_items:
-                        events.append(self._parse_item(item))
+            print(f"[{self.__class__.__name__}] Launching Playwright (network-interception mode)...")
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=["--disable-blink-features=AutomationControlled"],
+                )
+                context = await browser.new_context(
+                    user_agent=(
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        "AppleWebKit/537.36 (KHTML, like Gecko) "
+                        "Chrome/120.0.0.0 Safari/537.36"
+                    ),
+                )
+                page = await context.new_page()
 
-            if not events:
-                print("[NYRR] Primary scrape empty. Activating Fallback Events...")
-                fallbacks = [
-                    ("Fred Lebow Half Marathon", "Central Park", "2026-01-25"),
-                    ("Gridiron 4M", "Central Park", "2026-02-01"),
-                    ("Manhattan 10K", "Central Park", "2026-02-08"),
-                    ("NYC Half Marathon", "Brooklyn to Manhattan", "2026-03-15"),
-                    ("SHAPE + Health Women's Half", "Central Park", "2026-04-12"),
-                    ("Brooklyn Half Marathon", "Brooklyn", "2026-05-16"),
-                    ("Global Running Day 5K", "Central Park", "2026-06-03"),
-                    ("Queens 10K", "Flushing Meadows", "2026-06-20"),
-                    ("Bronx 10M", "The Bronx", "2026-09-20"),
-                    ("Staten Island Half", "Staten Island", "2026-10-11"),
-                    ("New York City Marathon", "Five Boroughs", "2026-11-01"),
-                ]
-                for title, venue, date_str in fallbacks:
-                    events.append(Event(
-                        title=title,
-                        venue=venue,
-                        start_time=datetime.fromisoformat(date_str),
-                        source="NYRR (Fallback)",
-                        impact_score=5 if "Marathon" in title else 4,
-                        raw_data={"note": "Official Scheduled Event"}
-                    ))
+                # ---- Strategy 1: Intercept network responses ----
+                async def _on_response(response):
+                    """Capture any JSON that looks like the Haku event feed."""
+                    try:
+                        url = response.url
+                        ct = response.headers.get("content-type", "")
+                        # The Haku widget fetches event data from various endpoints.
+                        # We look for JSON responses that contain race/event data.
+                        if "json" in ct or url.endswith(".json"):
+                            body = await response.text()
+                            if any(kw in body[:2000] for kw in [
+                                "event_name", "race_name", "upcoming",
+                                "start_date", "event_lists", "races"
+                            ]):
+                                try:
+                                    data = json.loads(body)
+                                    captured_json.append(data)
+                                    print(f"[{self.__class__.__name__}] Captured JSON from {url[:80]}...")
+                                except json.JSONDecodeError:
+                                    pass
+                    except Exception:
+                        pass  # Some responses may not be readable
+
+                page.on("response", _on_response)
+
+                try:
+                    await page.goto(self.url, timeout=60000, wait_until="domcontentloaded")
+                    print(f"[{self.__class__.__name__}] Page loaded. Waiting for Haku widget data...")
+
+                    # Give the Haku widget time to fetch its data
+                    try:
+                        await page.wait_for_selector("div.upcoming-event", timeout=25000)
+                        print(f"[{self.__class__.__name__}] DOM events appeared.")
+                    except Exception:
+                        print(f"[{self.__class__.__name__}] Selector timeout — will rely on intercepted JSON or raw HTML.")
+
+                    # Small extra wait for any trailing XHR
+                    await page.wait_for_timeout(3000)
+
+                    # ---------------------------------------------------
+                    # Try strategy 1 first: parse intercepted JSON
+                    # ---------------------------------------------------
+                    if captured_json:
+                        events = self._parse_json_feed(captured_json)
+                        if events:
+                            print(f"[{self.__class__.__name__}] ✓ Extracted {len(events)} events via JSON interception.")
+
+                    # ---------------------------------------------------
+                    # Fallback strategy 2: DOM scraping
+                    # ---------------------------------------------------
+                    if not events:
+                        print(f"[{self.__class__.__name__}] JSON empty — falling back to DOM scraping.")
+                        content = await page.content()
+                        events = self._parse_html(content)
+                        if events:
+                            print(f"[{self.__class__.__name__}] ✓ Extracted {len(events)} events via DOM scraping.")
+
+                except Exception as e:
+                    print(f"[{self.__class__.__name__}] Playwright page error: {e}")
+                finally:
+                    await browser.close()
 
         except Exception as e:
-            print(f"[NYRR] HTTP Error: {e}")
+            print(f"[{self.__class__.__name__}] Failed to run Playwright: {e}")
 
+        if not events:
+            print(f"[{self.__class__.__name__}] ✗ No events found from any strategy.")
         return events
 
-    def _parse_item(self, item) -> Event:
-        title_elem = item.select_one(".upcoming-race-title")
-        title = title_elem.get_text(strip=True) if title_elem else "NYRR Race"
-        
-        venue_elem = item.select_one(".upcoming-race-location")
-        venue = venue_elem.get_text(strip=True) if venue_elem else "NYC"
-        
-        # Simple date logic for the demo (Jan 2026 based on previous successes)
-        # In production, we'd parse the date column properly
-        date_elem = item.select_one(".upcoming-race-date")
-        date_text = date_elem.get_text(strip=True) if date_elem else "Upcoming"
-        
-        return Event(
-            title=title,
-            venue=venue,
-            start_time=datetime.now(), # Simplified for serverless stability
-            source="NYRR (HTTP)",
-            impact_score=4,
-            raw_data={"date_text": date_text}
-        )
+    # ------------------------------------------------------------------
+    # JSON feed parser (Strategy 1)
+    # ------------------------------------------------------------------
+    def _parse_json_feed(self, payloads: list) -> List[Event]:
+        """Walk through captured JSON payloads and extract Event objects."""
+        events: List[Event] = []
+        for payload in payloads:
+            items = self._find_event_list(payload)
+            for item in items:
+                try:
+                    title = (
+                        item.get("event_name")
+                        or item.get("race_name")
+                        or item.get("name")
+                        or item.get("title")
+                    )
+                    if not title:
+                        continue
+
+                    # Date
+                    raw_date = (
+                        item.get("start_date")
+                        or item.get("date")
+                        or item.get("event_date")
+                    )
+                    start_time = datetime.now()
+                    if raw_date:
+                        for fmt in ("%Y-%m-%d", "%Y/%m/%d", "%m/%d/%Y", "%B %d, %Y"):
+                            try:
+                                start_time = datetime.strptime(raw_date[:10], fmt)
+                                break
+                            except ValueError:
+                                continue
+
+                    # URL
+                    url = item.get("url") or item.get("link") or item.get("slug", "")
+                    if url and not url.startswith("http"):
+                        url = f"https://events.nyrr.org/{url.lstrip('/')}"
+                    if not url:
+                        url = self.url
+
+                    # Location
+                    location = (
+                        item.get("location")
+                        or item.get("venue")
+                        or item.get("city")
+                        or "New York, NY"
+                    )
+
+                    events.append(Event(
+                        source="NYRR",
+                        title=title,
+                        description="Scraped via Haku API interception",
+                        start_time=start_time,
+                        venue=location,
+                        raw_data={"url": url},
+                    ))
+                except Exception as e:
+                    print(f"[{self.__class__.__name__}] JSON item parse error: {e}")
+        return events
+
+    @staticmethod
+    def _find_event_list(obj, depth=0):
+        """Recursively search a JSON structure for lists of event-like dicts."""
+        if depth > 8:
+            return []
+        if isinstance(obj, list):
+            # Check if this list contains event-like dicts
+            if obj and isinstance(obj[0], dict) and any(
+                k in obj[0] for k in ("event_name", "race_name", "name", "title", "start_date")
+            ):
+                return obj
+            # Otherwise recurse into list items
+            for item in obj:
+                result = NYRRCollector._find_event_list(item, depth + 1)
+                if result:
+                    return result
+        elif isinstance(obj, dict):
+            for value in obj.values():
+                result = NYRRCollector._find_event_list(value, depth + 1)
+                if result:
+                    return result
+        return []
+
+    # ------------------------------------------------------------------
+    # DOM scraper (Strategy 2 — known-good selectors from HTML dump)
+    # ------------------------------------------------------------------
+    def _parse_html(self, content: str) -> List[Event]:
+        """Parse fully-rendered HTML using the confirmed CSS selectors."""
+        events: List[Event] = []
+        soup = BeautifulSoup(content, "html.parser")
+
+        event_containers = soup.select("div.upcoming-event")
+        if not event_containers:
+            event_containers = soup.select("article.upcoming-race")
+
+        for container in event_containers:
+            start_date_str = container.get("data-start-date")
+            location = container.get("data-location", "New York, NY")
+
+            article = container.find("article", class_="upcoming-race") or container
+
+            title_el = article.select_one(".upcoming-race-title")
+            title = title_el.get_text(strip=True) if title_el else None
+
+            link_el = article.select_one("a.learn-more-btn")
+            link = link_el["href"] if link_el else None
+
+            if title and link:
+                if not link.startswith("http"):
+                    link = "https://www.nyrr.org" + link
+
+                start_time = datetime.now()
+                if start_date_str:
+                    try:
+                        start_time = datetime.strptime(start_date_str, "%Y/%m/%d")
+                        time_el = article.select_one(".upcoming-race-time")
+                        if time_el:
+                            time_str = time_el.get_text(strip=True)
+                            try:
+                                time_obj = datetime.strptime(time_str, "%I:%M %p").time()
+                                start_time = datetime.combine(start_time.date(), time_obj)
+                            except ValueError:
+                                pass
+                    except ValueError as e:
+                        print(f"[NYRRCollector] Date parse error: {e}")
+
+                events.append(Event(
+                    source="NYRR",
+                    title=title,
+                    description="Live scraped via Playwright",
+                    start_time=start_time,
+                    venue=location,
+                    raw_data={"url": link},
+                ))
+        return events

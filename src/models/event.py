@@ -14,6 +14,7 @@ class BaseEvent(BaseModel):
 class Event(BaseEvent):
     impact_score: Optional[int] = Field(None, ge=1, le=5)
     attendance_estimate: Optional[int] = None
+    is_new: bool = False
 
 class Alert(BaseModel):
     category: str # Weather, Transit, etc.

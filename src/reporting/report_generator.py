@@ -11,7 +11,7 @@ class ReportGenerator:
         now = datetime.now().strftime("%B %d, %Y")
         
         # Calculate impact summary
-        high_impact = len([e for e in events if e.impact_score >= 4])
+        high_impact = len([e for e in events if (e.impact_score or 0) >= 4])
         total_events = len(events)
         
         # Source breakdown
@@ -27,10 +27,7 @@ class ReportGenerator:
                 <td style="padding: 10px;">{event.start_time.strftime('%Y-%m-%d')}</td>
                 <td style="padding: 10px;">{event.venue}</td>
                 <td style="padding: 10px; text-align: center;">
-                    <span style="background: {'#ff4d4d' if event.impact_score >= 4 else '#ffd11a'}; 
-                                 color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">
-                        {event.impact_score}
-                    </span>
+                    {'<span style="background: #2ecc71; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">NEW</span>' if event.is_new else ''}
                 </td>
             </tr>
             """
@@ -68,7 +65,6 @@ class ReportGenerator:
                             <th style="padding: 10px;">Event</th>
                             <th style="padding: 10px;">Date</th>
                             <th style="padding: 10px;">Venue</th>
-                            <th style="padding: 10px;">Impact</th>
                         </tr>
                     </thead>
                     <tbody>

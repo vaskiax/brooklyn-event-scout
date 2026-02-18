@@ -1,70 +1,165 @@
-import httpx
+import logging
+import asyncio
+from datetime import datetime
 from typing import List
 from bs4 import BeautifulSoup
-from ..models.event import Event
-from datetime import datetime
-import re
 
-class ProspectParkCollector:
-    # Use the Official NYC Parks RSS feed for Prospect Park - 100% serverless friendly
-    RSS_URL = "https://www.nycgovparks.org/parks/prospect-park/events/rss"
+# Use SeleniumBase for Cloudflare bypass
+try:
+    from seleniumbase import SB
+except ImportError:
+    logging.warning("SeleniumBase not installed. Prospect Park collector will fail.")
+
+from src.ingestion.base import EventCollector
+from src.models.event import Event
+
+class ProspectParkCollector(EventCollector):
+    def __init__(self):
+        # The Alliance events events/calendar page
+        self.url = "https://www.prospectpark.org/events/list/"
+        self.calendar_url = "https://www.prospectpark.org/calendar/"
 
     async def fetch_events(self) -> List[Event]:
+        """
+        Prospect Park scraper using SeleniumBase UC Mode to bypass Cloudflare.
+        """
         events = []
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-
+        loop = asyncio.get_event_loop()
+        
+        # Run blocking SeleniumBase code in a separate thread to avoid blocking the async loop
         try:
-            print(f"[ProspectPark] Fetching RSS feed: {self.RSS_URL}")
-            async with httpx.AsyncClient(headers=headers, follow_redirects=True, timeout=30.0) as client:
-                response = await client.get(self.RSS_URL)
-                
-                if response.status_code == 200:
-                    # 'html.parser' is more reliable than 'xml' if lxml/xml parser is missing or restricted
-                    soup = BeautifulSoup(response.content, "html.parser")
-                    items = soup.find_all("item")
-                    print(f"[ProspectPark] Found {len(items)} items in RSS.")
-
-                    for item in items:
-                        title = item.find("title").get_text(strip=True) if item.find("title") else "Unknown Event"
-                        link = item.find("link").get_text(strip=True) if item.find("link") else ""
-                        desc = item.find("description").get_text(strip=True) if item.find("description") else ""
-                        events.append(Event(
-                            title=title,
-                            description=desc,
-                            venue="Prospect Park",
-                            source="NYC Parks RSS",
-                            start_time=datetime.now(),
-                            raw_data={"url": link},
-                            impact_score=3
-                        ))
-
-            if not events:
-                print("[ProspectPark] RSS empty or blocked. Activating Fallback Events...")
-                fallbacks = [
-                    ("Prospect Park 5K: February Edition", "The Loop", "2026-02-14"),
-                    ("Ice Skating at LeFrak Center", "Lakeside", "2026-01-30"),
-                    ("Smorgasburg Prospect Park", "Breeze Hill", "2026-04-05"),
-                    ("Prospect Park Zoo: Winter Wildlife", "Prospect Park Zoo", "2026-01-31"),
-                    ("Birdwatching Tour", "Audubon Center", "2026-02-07"),
-                    ("Lakeside Broomball League", "LeFrak Center", "2026-02-03"),
-                    ("Wednesday Morning Run", "Entrance Parkside", "2026-02-04"),
-                    ("Prospect Park Alliance Volunteer Day", "Lullwater", "2026-02-01"),
-                    ("History Tour: Battle Pass", "Lookout Hill", "2026-02-15"),
-                    ("Nature Exploration-Kids", "EcoCenter", "2026-02-22"),
-                ]
-                for title, venue, date_str in fallbacks:
-                    events.append(Event(
-                        title=title,
-                        venue=venue,
-                        start_time=datetime.fromisoformat(date_str),
-                        source="Prospect Park (Fallback)",
-                        impact_score=3,
-                        raw_data={"note": "Community Event"}
-                    ))
-
+            events = await loop.run_in_executor(None, self._scrape_sync)
         except Exception as e:
-            print(f"[ProspectPark] RSS Error: {e}")
+            print(f"[{self.__class__.__name__}] SB execution failed: {e}")
+            
+        if not events:
+            print(f"[{self.__class__.__name__}] ✗ No events found via SeleniumBase.")
+        return events
 
+    def _scrape_sync(self) -> List[Event]:
+        """Synchronous SeleniumBase logic."""
+        events = []
+        print(f"[{self.__class__.__name__}] Launching SeleniumBase (UC Mode)...")
+        
+        # Context Manager: SB(uc=True, headless=True)
+        # headless2 is often better for UC mode 
+        with SB(uc=True, test=True, headless2=True) as sb: 
+            # Try primary URL
+            try:
+                print(f"[{self.__class__.__name__}] Navigate to {self.url}...")
+                sb.open(self.url)
+                
+                # Check for Cloudflare title
+                if "Just a moment" in sb.get_title():
+                    print(f"[{self.__class__.__name__}] Cloudflare challenge detected. Attempting bypass...")
+                    # UC mode handles some automatically. 
+                    # If specific iframe:
+                    if sb.is_element_visible('iframe[src*="cloudflare"]'):
+                        sb.uc_gui_click_captcha()
+                
+                sb.sleep(5) # Wait for load
+                
+                # Check for calendar items
+                if not sb.is_element_visible(".tribe-events-calendar-list") and \
+                   not sb.is_element_visible(".result-item"):
+                       pass
+
+                # Debug: Save what we actually see
+                sb.save_page_source("pp_debug.html")
+
+                content = sb.get_page_source()
+                parsed = self._parse_html(content, self.url)
+                if parsed:
+                    events.extend(parsed)
+                    print(f"[{self.__class__.__name__}] ✓ Extracted {len(parsed)} events from primary URL.")
+                    return events
+
+            except Exception as e:
+                print(f"[{self.__class__.__name__}] Error on {self.url}: {e}")
+
+            # Try secondary URL if empty
+            if not events:
+                try:
+                    print(f"[{self.__class__.__name__}] Trying secondary {self.calendar_url}...")
+                    sb.open(self.calendar_url)
+                    sb.sleep(5)
+                    content = sb.get_page_source()
+                    parsed = self._parse_html(content, self.calendar_url)
+                    if parsed:
+                        events.extend(parsed)
+                        print(f"[{self.__class__.__name__}] ✓ Extracted {len(parsed)} events from calendar URL.")
+                except Exception as e:
+                    print(f"[{self.__class__.__name__}] Error on {self.calendar_url}: {e}")
+
+        return events
+
+    def _parse_html(self, content: str, base_url: str) -> List[Event]:
+        """Parse HTML content using BeautifulSoup (reused logic)."""
+        events: List[Event] = []
+        soup = BeautifulSoup(content, "html.parser")
+        
+        cards = soup.select(
+            ".tribe-events-calendar-list__event, "
+            ".tribe-events-list .type-tribe_events, "
+            ".result-item, "
+            "article.type-tribe_events, "
+            ".tribe-common-g-row"
+        )
+        
+        if not cards:
+            cards = soup.select("div[class*='event'], article[class*='event']")
+
+        for card in cards:
+            title_el = (
+                card.select_one(".tribe-events-calendar-list__event-title a")
+                or card.select_one("h3 a, h2 a, .tribe-events-list-event-title a")
+                or card.select_one("h3, h4, .title")
+            )
+            if not title_el:
+                continue
+
+            title = title_el.get_text(strip=True)
+            link = title_el.get("href", base_url)
+            if not link.startswith("http"):
+                link = "https://www.prospectpark.org" + link
+
+            # Date
+            start_time = datetime.now()
+            date_el = card.select_one(
+                ".tribe-events-calendar-list__event-datetime, "
+                "time[datetime], "
+                ".tribe-event-schedule-details, "
+                ".date"
+            )
+            if date_el:
+                dt_attr = date_el.get("datetime")
+                if dt_attr:
+                    try:
+                        start_time = datetime.fromisoformat(dt_attr.replace("Z", "+00:00"))
+                    except:
+                        pass
+                else:
+                    date_text = date_el.get_text(strip=True)
+                    try:
+                        parts = date_text.split()
+                        if len(parts) >= 2:
+                            month = parts[0]
+                            day = parts[1].replace(",", "")
+                            year = datetime.now().year
+                            dt = datetime.strptime(f"{month} {day} {year}", "%B %d %Y")
+                            if dt < datetime.now():
+                                dt = dt.replace(year=year + 1)
+                            start_time = dt
+                    except:
+                        pass
+
+            events.append(Event(
+                source="Prospect Park",
+                title=title,
+                description="Live scraped via SeleniumBase",
+                start_time=start_time,
+                venue="Prospect Park, Brooklyn",
+                raw_data={"url": link},
+            ))
+            
         return events

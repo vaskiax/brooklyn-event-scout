@@ -47,8 +47,10 @@ class Notifier:
                 port=self.smtp_port,
                 username=self.smtp_user,
                 password=self.smtp_password,
-                start_tls=True
+                start_tls=True,
+                timeout=30
             )
+            # print(f"[Notifier] SMTP Response: {response}") # aiosmtplib.send returns tuple (response_code, response_message)
             print("[Notifier] Email sent successfully.")
             return True
         except Exception as e:

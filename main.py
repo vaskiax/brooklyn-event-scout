@@ -26,6 +26,8 @@ async def run_ingestion_pipeline():
         from src.models.event import Event
         from src.reporting.report_generator import ReportGenerator
         from src.reporting.notifier import Notifier
+        from src.utils.memory import EventMemory
+        from src.integration.calendar_connector import CalendarConnector
         print("[Pipeline] Module setup complete.")
     except Exception as e:
         print(f"[Pipeline] FATAL: Import failure: {e}")
@@ -35,7 +37,7 @@ async def run_ingestion_pipeline():
     # 2. Collector Tasks
     print("[Pipeline] Initiating collectors...")
     tasks = [
-        ("NYRR", NYRRCollector().fetch_upcoming_races()),
+        ("NYRR", NYRRCollector().fetch_events()),
         ("ProspectPark", ProspectParkCollector().fetch_events()),
         ("Weather", WeatherConnector().fetch_active_alerts()),
     ]
@@ -60,7 +62,7 @@ async def run_ingestion_pipeline():
 
     # --- BROOKLYN FILTER ---
     print(f"[Pipeline] Filtering {len(all_events)} items for Brooklyn/Prospect Park sector...")
-    brooklyn_keywords = ["Brooklyn", "Prospect Park", "Kings", "696 Flatbush", "Grand Army", "Lakeside", "LeFrak", "Zoo", "Breeze Hill"]
+    brooklyn_keywords = ["Brooklyn", "Prospect Park", "Kings", "696 Flatbush", "Grand Army", "Lakeside", "LeFrak", "Zoo", "Breeze Hill", "Audubon", "Lookout Hill", "EcoCenter", "Parkside", "Lullwater", "The Loop"]
     filtered_events = []
     for event in all_events:
         text = f"{event.title} {event.venue} {event.description or ''}".lower()
@@ -68,17 +70,78 @@ async def run_ingestion_pipeline():
             filtered_events.append(event)
     
     print(f"[Pipeline] Post-filter count: {len(filtered_events)}")
-    all_events = filtered_events
+    
+    # --- DATE FILTER (Global) ---
+    # Remove past events so they don't appear in Report, CSV, or Calendar
+    # And so Memory logic treats them as "missing" (triggering deletion)
+    future_events = []
+    now_date = datetime.now().date()
+    for event in filtered_events:
+        if event.start_time.date() >= now_date:
+            future_events.append(event)
+    
+    print(f"[Pipeline] Post-Date-Filter count: {len(future_events)}")
+    all_events = future_events
+
+    # --- MEMORY & CALENDAR INTEGRATION ---
+    print("[Pipeline] Initializing Memory and Calendar...")
+    try:
+        memory = EventMemory()
+        calendar = CalendarConnector()
+        
+        new_event_count = 0
+        current_run_hash_ids = set()
+
+        for event in all_events:
+            # Generate ID to track what we see in this run
+            event_hash = memory._generate_id(event)
+            current_run_hash_ids.add(event_hash)
+
+            if memory.is_new(event):
+                event.is_new = True
+                new_event_count += 1
+                google_id = None
+                if os.getenv("CALENDAR_ENABLED", "true").lower() == "true":
+                     google_id = calendar.add_event(event)
+                memory.mark_processed(event, google_event_id=google_id)
+        
+        # --- SYNC: Remove events that are no longer in the report ---
+        print("[Pipeline] Syncing: Checking for cancelled/removed events...")
+        known_ids = set(memory.get_all_ids())
+        
+        # Determine IDs that are in memory but NOT in the current run
+        # Note: We only remove if we are "source of truth". 
+        # For safety, maybe we should only remove "future" events? 
+        # For now, simplistic approach: if it's not in the run, we remove it.
+        # Ensure we don't wipe historical data?
+        # Given this is a weekly "upcoming" report, if it's not in the report, it shouldn't be on the calendar (or is past).
+        
+        missing_ids = known_ids - current_run_hash_ids
+        deleted_count = 0
+        
+        for missing_hash in missing_ids:
+            google_id = memory.get_google_id(missing_hash)
+            if google_id and os.getenv("CALENDAR_ENABLED", "true").lower() == "true":
+                calendar.delete_event(google_id)
+                deleted_count += 1
+            
+            # Remove from memory regardless of calendar status so we don't track it forever
+            memory.remove_event(missing_hash)
+
+        print(f"[Pipeline] New events: {new_event_count}, Removed/Synced events: {deleted_count}")
+        
+    except Exception as e:
+        print(f"[Pipeline] Memory/Calendar integration failed: {e}")
 
     # 2. Export CSV
     csv_file = "/tmp/extracted_events.csv"
     try:
         with open(csv_file, mode='w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(["Source", "Title", "Date", "Venue", "Impact"])
+            writer.writerow(["Source", "Title", "Date", "Venue"])
             for event in all_events:
                 dt = event.start_time.strftime("%Y-%m-%d") if hasattr(event.start_time, "strftime") else str(event.start_time)
-                writer.writerow([event.source, event.title, dt, event.venue, event.impact_score])
+                writer.writerow([event.source, event.title, dt, event.venue])
         print(f"[Pipeline] CSV generated at {csv_file}")
     except Exception as e:
         print(f"[Pipeline] CSV generation failed: {e}")
@@ -124,3 +187,9 @@ def cloud_function_entry(request):
     except Exception as e:
         print(f"[FATAL] Entry point crash: {e}")
         return f"ERROR: See logs. {e}", 500
+
+if __name__ == "__main__":
+    # Local execution - mimics Cloud Function behavior
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(run_ingestion_pipeline())
