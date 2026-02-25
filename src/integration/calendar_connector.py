@@ -81,6 +81,16 @@ class CalendarConnector:
                 # Default to 1 hour duration if no end time
                 end_dt = start_dt + datetime.timedelta(hours=1)
 
+            # determine reminder offsets (minutes before event)
+            # default to one week (10080 min) plus the existing 1‑hour popup
+            week_offset = int(os.getenv("CALENDAR_REMINDER_MINUTES", "10080"))
+            overrides = []
+            if week_offset > 0:
+                overrides.append({'method': 'popup', 'minutes': week_offset})
+            # always keep a 1‑hour reminder as fallback
+            if week_offset != 60:
+                overrides.append({'method': 'popup', 'minutes': 60})
+
             event_body = {
                 'summary': event.title,
                 'location': event.venue,
@@ -95,9 +105,7 @@ class CalendarConnector:
                 },
                 'reminders': {
                     'useDefault': False,
-                    'overrides': [
-                        {'method': 'popup', 'minutes': 60},
-                    ],
+                    'overrides': overrides,
                 },
             }
 

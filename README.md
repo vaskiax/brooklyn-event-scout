@@ -23,6 +23,7 @@ To provide stakeholders  with a local weekly intelligence report. The system ove
   - **NYRR**: Pure HTTP/BeautifulSoup implementation to avoid browser overhead and bypass Haku widget security.
   - **Prospect Park**: Robust NYC Parks RSS parsing with multiple fallback strategies if feeds are blocked.
 - **Guaranteed Population (Fail-Safe)**: Includes a baseline of high-quality, pre-verified recurring events (e.g., major NYRR races, Smorgasburg) to ensure the stakeholder never receives an empty report.
+- **Calendar Integration with Reminders**: New events are automatically pushed to the configured Google Calendar. Each entry now includes two pop‑up reminders – one week (7 days) before the start and a second alert one hour prior. The week‑prior offset is configurable via the `CALENDAR_REMINDER_MINUTES` environment variable (default 10080 minutes).
 - **Local Filter**: Strict location filtering targeting the Brooklyn sector, excluding non-relevant boroughs.
 - **Smart Impact Scoring**: Automated priority assignment (1-5) based on event scale and potential traffic/security disruption.
 
@@ -51,18 +52,41 @@ The system is designed for automated deployment using Google Cloud's Infrastruct
 
 ### Automation Script:
 
-Run the following from the root directory:
+A new PowerShell helper lives under `deploy/setup_gcp.ps1`. It builds a container, pushes it to Artifact Registry and creates a Cloud Run Job that runs on a weekly schedule. Environment variables are loaded from your `.env` file and automatically injected into the Cloud Run job. Secrets such as `SMTP_PASSWORD` are stored in Secret Manager.
+
+Run the helper from the project root ( PowerShell 7+ recommended ):
 
 ```powershell
-./scripts/setup_gcp.ps1 -ProjectId your-project-id
+# simple invocation – assumes your .env already contains the values below
+./deploy/setup_gcp.ps1
 ```
+
+> **Tip**: ensure `.env` defines either `GCP_PROJECT_ID` *or* the legacy
+> `PROJECT_ID` entry, and similarly `GCP_BILLING_ACCOUNT_ID` (or
+> `BILLING_ACCOUNT_ID`). The script will silently read those keys; if they are
+> present it will **not** prompt for them.
+>
+> **Non-interactive authentication**
+> If you supply a service account JSON file and set
+> `GOOGLE_APPLICATION_CREDENTIALS` in `.env`, the script will use
+> `gcloud auth activate-service-account` and perform the entire run without
+> opening a browser. This makes the deployment fully automated for CI/CD.
 
 The script will:
 
-- Enable all necessary APIs.
-- Create Service Accounts with least-privilege IAM roles.
-- Securely prompt for and store your SMTP password.
-- Deploy the Cloud Function and configure the Weekly Scheduler.
+- Read configuration directly from `.env` (no interactive prompts unless values
+  are missing).
+- Authenticate with GCP and set the active project.
+- Link the billing account (automatic when provided in `.env`).
+- Enable required APIs (Cloud Run, Scheduler, Build, Artifact Registry, Secret
+  Manager, Logging).
+- Create an Artifact Registry repository and build/push the Docker image.
+- Inject all variables from `.env` into the Cloud Run job’s environment.
+- Create/update a weekly Cloud Scheduler trigger that executes the job.
+- Create the `SMTP_PASSWORD` secret in Secret Manager if it doesn't already
+  exist.
+
+The older script in `scripts/setup_gcp.ps1` remains as a lightweight recovery tool for HTTP‑trigger deployments, but the new `deploy` helper is the recommended path going forward.
 
 ## 📊 Operating Costs
 

@@ -1,0 +1,933 @@
+[
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "authenticationInfo": {
+        "principalEmail": "service-961628659285@gcf-admin-robot.iam.gserviceaccount.com"
+      },
+      "requestMetadata": {
+        "requestAttributes": {
+          "time": "2026-02-25T12:35:32.202965Z",
+          "auth": {}
+        },
+        "destinationAttributes": {}
+      },
+      "serviceName": "run.googleapis.com",
+      "methodName": "google.cloud.serverless.internal.InternalServices.ReplaceInternalService",
+      "authorizationInfo": [
+        {
+          "resource": "namespaces/event-driven-alerts-test/services/event-ingestion-engine",
+          "permission": "run.services.update",
+          "granted": true,
+          "resourceAttributes": {},
+          "permissionType": "ADMIN_WRITE"
+        },
+        {
+          "resource": "namespaces/event-driven-alerts-test/services/event-ingestion-engine",
+          "permission": "run.services.update",
+          "granted": true,
+          "resourceAttributes": {
+            "service": "run.googleapis.com/",
+            "name": "namespaces/event-driven-alerts-test/services/event-ingestion-engine",
+            "type": "run.googleapis.com/Service"
+          },
+          "permissionType": "ADMIN_WRITE"
+        }
+      ],
+      "resourceName": "namespaces/event-driven-alerts-test/services/event-ingestion-engine",
+      "resourceLocation": {
+        "currentLocations": [
+          "us-central1"
+        ]
+      }
+    },
+    "insertId": "iw2xv4dk2jc",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "",
+        "service_name": "event-ingestion-engine",
+        "configuration_name": "",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:32.074970Z",
+    "severity": "NOTICE",
+    "logName": "projects/event-driven-alerts-test/logs/cloudaudit.googleapis.com%2Factivity",
+    "receiveTimestamp": "2026-02-25T12:35:32.300911839Z"
+  },
+  {
+    "textPayload": "Starting new instance. Reason: DEPLOYMENT_ROLLOUT - Instance started due to traffic shifting between revisions due to deployment, traffic split adjustment, or deployment health check.",
+    "insertId": "699eecaa0007b21d8638203e",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "event-ingestion-engine",
+        "location": "us-central1",
+        "project_id": "event-driven-alerts-test",
+        "service_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:54.504349Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "00da6cd2c42c9fa5fa3b7c7693b2853d1027885e9fbe9c217ee1f3b3f52268bd35298d1f4b0a7b6f8fb580dc38e67f5aa0486ee2abdb4b0264dccda52bd310ae957bf0d1bc1e9f6abec7cfe07019",
+      "scaling_reason": "DEPLOYMENT_ROLLOUT"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-02-25T12:35:54.508763520Z"
+  },
+  {
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"worker\" on port 8080.",
+    "insertId": "699eecab000e3173bfb6066b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1",
+        "configuration_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:55.930163Z",
+    "severity": "INFO",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00",
+      "instanceId": "00da6cd2c42c9fa5fa3b7c7693b2853d1027885e9fbe9c217ee1f3b3f52268bd35298d1f4b0a7b6f8fb580dc38e67f5aa0486ee2abdb4b0264dccda52bd310ae957bf0d1bc1e9f6abec7cfe07019",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-02-25T12:35:56.176962910Z"
+  },
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "status": {
+        "message": "Ready condition status changed to True for Revision event-ingestion-engine-00002-rip with message: Deploying revision succeeded in 23.76s."
+      },
+      "serviceName": "run.googleapis.com",
+      "methodName": "/InternalServices.ReplaceInternalService",
+      "resourceName": "namespaces/event-driven-alerts-test/revisions/event-ingestion-engine-00002-rip",
+      "response": {
+        "metadata": {
+          "name": "event-ingestion-engine-00002-rip",
+          "namespace": "961628659285",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/961628659285/revisions/event-ingestion-engine-00002-rip",
+          "uid": "4f4d8af0-a839-4227-9098-2a3ec9f4cb08",
+          "resourceVersion": "AAZLpT7Tyno",
+          "generation": 1,
+          "creationTimestamp": "2026-02-25T12:35:32.258823Z",
+          "labels": {
+            "goog-drz-cloudfunctions-location": "us-central1",
+            "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+            "serving.knative.dev/configuration": "event-ingestion-engine",
+            "serving.knative.dev/configurationGeneration": "2",
+            "serving.knative.dev/service": "event-ingestion-engine",
+            "serving.knative.dev/serviceUid": "68c615e8-fd4b-4562-ac9a-31833464a899",
+            "goog-cloudfunctions-runtime": "python310",
+            "cloud.googleapis.com/location": "us-central1",
+            "goog-managed-by": "cloudfunctions",
+            "serving.knative.dev/route": "event-ingestion-engine",
+            "run.googleapis.com/startupProbeType": "Default"
+          },
+          "annotations": {
+            "run.googleapis.com/client-name": "gcloud",
+            "cloudfunctions.googleapis.com/trigger-type": "HTTP_TRIGGER",
+            "run.googleapis.com/secrets": "secret-653d170f-5f73-322d-adaf-4780a6818a2f:projects/961628659285/secrets/SMTP_PASSWORD",
+            "autoscaling.knative.dev/maxScale": "77",
+            "serving.knative.dev/creator": "service-961628659285@gcf-admin-robot.iam.gserviceaccount.com",
+            "run.googleapis.com/build-source-location": "{\"worker\":\"gs://gcf-v2-sources-961628659285-us-central1/event-ingestion-engine/function-source.zip#1772022841048565\"}",
+            "run.googleapis.com/build-id": "{\"worker\":\"bd849c79-f203-4688-ada7-d3d30a40b5fe\"}",
+            "run.googleapis.com/build-function-target": "{\"worker\":\"cloud_function_entry\"}",
+            "run.googleapis.com/operation-id": "9f365b6e-ad39-42c9-8c0c-b2f0c36a6685",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "run.googleapis.com/base-images": "{\"worker\":\"us-central1-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310\"}"
+          },
+          "ownerReferences": [
+            {
+              "kind": "Configuration",
+              "name": "event-ingestion-engine",
+              "uid": "a9d665d1-8096-445f-b8c4-0096e80007ae",
+              "apiVersion": "serving.knative.dev/v1",
+              "controller": true,
+              "blockOwnerDeletion": true
+            }
+          ]
+        },
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "spec": {
+          "containerConcurrency": 1,
+          "timeoutSeconds": 60,
+          "serviceAccountName": "event-alerts-sa@event-driven-alerts-test.iam.gserviceaccount.com",
+          "containers": [
+            {
+              "name": "worker",
+              "image": "us-central1-docker.pkg.dev/event-driven-alerts-test/gcf-artifacts/event--driven--alerts--test__us--central1__event--ingestion--engine@sha256:80214b6e997349b5fc1cb75784be9b5fa87dcc43dd0ddd705823a1df0a2eebad",
+              "ports": [
+                {
+                  "name": "http1",
+                  "containerPort": 8080
+                }
+              ],
+              "env": [
+                {
+                  "name": "NOTIFICATIONS_ENABLED",
+                  "value": "true"
+                },
+                {
+                  "name": "SENDER_EMAIL",
+                  "value": "testingxvaskias@gmail.com"
+                },
+                {
+                  "name": "SMTP_PORT",
+                  "value": "587"
+                },
+                {
+                  "name": "SMTP_SERVER",
+                  "value": "smtp.gmail.com"
+                },
+                {
+                  "name": "SMTP_USER",
+                  "value": "testingxvaskias@gmail.com"
+                },
+                {
+                  "name": "STAKEHOLDER_EMAIL",
+                  "value": "testingxvaskias@gmail.com"
+                },
+                {
+                  "name": "LOG_EXECUTION_ID",
+                  "value": "true"
+                },
+                {
+                  "name": "SMTP_PASSWORD",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "key": "latest",
+                      "name": "secret-653d170f-5f73-322d-adaf-4780a6818a2f"
+                    }
+                  }
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "0.1666",
+                  "memory": "256M"
+                }
+              },
+              "startupProbe": {
+                "timeoutSeconds": 240,
+                "periodSeconds": 240,
+                "failureThreshold": 1,
+                "tcpSocket": {
+                  "port": 8080
+                }
+              }
+            }
+          ],
+          "runtimeClassName": "run.googleapis.com/linux-base-image-update"
+        },
+        "status": {
+          "observedGeneration": 1,
+          "conditions": [
+            {
+              "type": "Ready",
+              "status": "True",
+              "message": "Deploying revision succeeded in 23.76s.",
+              "lastTransitionTime": "2026-02-25T12:35:56.018298Z"
+            },
+            {
+              "type": "ContainerHealthy",
+              "status": "True",
+              "message": "Containers became healthy.",
+              "lastTransitionTime": "2026-02-25T12:35:55.941649Z"
+            },
+            {
+              "type": "ContainerReady",
+              "status": "True",
+              "message": "Container image import completed in 19.58s.",
+              "lastTransitionTime": "2026-02-25T12:35:52.850458Z"
+            },
+            {
+              "type": "ResourcesAvailable",
+              "status": "True",
+              "message": "Provisioning imported containers completed in 1.53s. Checking container health. This will wait for up to 4m for the configured startup probe, including an initial delay of 0s.",
+              "lastTransitionTime": "2026-02-25T12:35:54.381339Z"
+            }
+          ],
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=event-driven-alerts-test&resource=cloud_run_revision/service_name/event-ingestion-engine/revision_name/event-ingestion-engine-00002-rip&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22event-ingestion-engine%22%0Aresource.labels.revision_name%3D%22event-ingestion-engine-00002-rip%22",
+          "imageDigest": "us-central1-docker.pkg.dev/event-driven-alerts-test/gcf-artifacts/event--driven--alerts--test__us--central1__event--ingestion--engine@sha256:80214b6e997349b5fc1cb75784be9b5fa87dcc43dd0ddd705823a1df0a2eebad",
+          "containerStatuses": [
+            {
+              "name": "worker",
+              "imageDigest": "us-central1-docker.pkg.dev/event-driven-alerts-test/gcf-artifacts/event--driven--alerts--test__us--central1__event--ingestion--engine@sha256:80214b6e997349b5fc1cb75784be9b5fa87dcc43dd0ddd705823a1df0a2eebad"
+            }
+          ]
+        },
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision"
+      }
+    },
+    "insertId": "tyvosidjk1m",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1",
+        "service_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:56.031871Z",
+    "severity": "INFO",
+    "logName": "projects/event-driven-alerts-test/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "receiveTimestamp": "2026-02-25T12:35:56.316319815Z"
+  },
+  {
+    "insertId": "699eecb0000c086e76e6aa2d",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app/",
+      "requestSize": "1076",
+      "status": 200,
+      "responseSize": "179",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      "remoteIp": "74.125.19.45",
+      "serverIp": "34.143.77.2",
+      "latency": "3.428090061s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1",
+        "configuration_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:57.079222Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/event-driven-alerts-test/traces/c7a949eee9f4d331b47ec394243502a5",
+    "receiveTimestamp": "2026-02-25T12:36:01.120977385Z",
+    "spanId": "4f744a8aabbd5f73",
+    "traceSampled": true
+  },
+  {
+    "textPayload": "Starting new instance. Reason: AUTOSCALING - Instance started due to configured scaling factors (e.g. CPU utilization, request throughput, etc.) or no existing capacity for current traffic.",
+    "insertId": "699eecad000154d17174fd08",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "location": "us-central1",
+        "project_id": "event-driven-alerts-test",
+        "configuration_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:57.087249Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "scaling_reason": "AUTOSCALING"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-02-25T12:35:57.091475591Z"
+  },
+  {
+    "insertId": "699eecb0000bea0629145c1c",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app/",
+      "requestSize": "1075",
+      "status": 200,
+      "responseSize": "179",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "remoteIp": "172.253.192.112",
+      "serverIp": "34.143.74.2",
+      "latency": "2.414221622s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "configuration_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:57.134749Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "00da6cd2c4fc8a1d786368f7cc9f0f9ca1e3b59c172696e810bbb29a42e6a0acdd27b53756b4afb0e502718345be385f8fc7d46c70914c76478590028a58920078643dc99945c31a7143ae09a675",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/event-driven-alerts-test/traces/7fa07a19e4d193824e621a5bb438e054",
+    "receiveTimestamp": "2026-02-25T12:36:00.794607382Z",
+    "spanId": "369a0ff2b1d4497b"
+  },
+  {
+    "textPayload": "Starting new instance. Reason: AUTOSCALING - Instance started due to configured scaling factors (e.g. CPU utilization, request throughput, etc.) or no existing capacity for current traffic.",
+    "insertId": "699eecad000218f5c893b9eb",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1",
+        "configuration_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:57.137461Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "00da6cd2c4fc8a1d786368f7cc9f0f9ca1e3b59c172696e810bbb29a42e6a0acdd27b53756b4afb0e502718345be385f8fc7d46c70914c76478590028a58920078643dc99945c31a7143ae09a675",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "scaling_reason": "AUTOSCALING"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-02-25T12:35:57.425399383Z"
+  },
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "status": {
+        "message": "Ready condition status changed to True for Service event-ingestion-engine."
+      },
+      "serviceName": "run.googleapis.com",
+      "methodName": "/InternalServices.ReplaceInternalService",
+      "resourceName": "namespaces/event-driven-alerts-test/services/event-ingestion-engine",
+      "response": {
+        "metadata": {
+          "name": "event-ingestion-engine",
+          "namespace": "961628659285",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/961628659285/services/event-ingestion-engine",
+          "uid": "68c615e8-fd4b-4562-ac9a-31833464a899",
+          "resourceVersion": "AAZLpT7pg8M",
+          "generation": 2,
+          "creationTimestamp": "2026-02-25T12:23:44.428734Z",
+          "labels": {
+            "goog-drz-cloudfunctions-location": "us-central1",
+            "goog-cloudfunctions-runtime": "python310",
+            "cloud.googleapis.com/location": "us-central1",
+            "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+            "goog-managed-by": "cloudfunctions"
+          },
+          "annotations": {
+            "serving.knative.dev/creator": "service-961628659285@gcf-admin-robot.iam.gserviceaccount.com",
+            "serving.knative.dev/lastModifier": "service-961628659285@gcf-admin-robot.iam.gserviceaccount.com",
+            "run.googleapis.com/custom-audiences": "[\"https://us-central1-event-driven-alerts-test.cloudfunctions.net/event-ingestion-engine\"]",
+            "run.googleapis.com/client-name": "gcloud",
+            "cloudfunctions.googleapis.com/function-id": "event-ingestion-engine",
+            "run.googleapis.com/build-source-location": "gs://gcf-v2-sources-961628659285-us-central1/event-ingestion-engine/function-source.zip#1772022841048565",
+            "run.googleapis.com/build-function-target": "cloud_function_entry",
+            "run.googleapis.com/build-service-account": "projects/event-driven-alerts-test/serviceAccounts/961628659285-compute@developer.gserviceaccount.com",
+            "run.googleapis.com/build-enable-automatic-updates": "true",
+            "run.googleapis.com/build-base-image": "us-central1-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310",
+            "run.googleapis.com/build-image-uri": "us-central1-docker.pkg.dev/event-driven-alerts-test/gcf-artifacts/event--driven--alerts--test__us--central1__event--ingestion--engine:version_1",
+            "run.googleapis.com/build-name": "projects/961628659285/locations/us-central1/builds/bd849c79-f203-4688-ada7-d3d30a40b5fe",
+            "run.googleapis.com/operation-id": "9f365b6e-ad39-42c9-8c0c-b2f0c36a6685",
+            "run.googleapis.com/ingress": "all",
+            "run.googleapis.com/ingress-status": "all",
+            "run.googleapis.com/maxScale": "77",
+            "run.googleapis.com/urls": "[\"https://event-ingestion-engine-961628659285.us-central1.run.app\",\"https://us-central1-event-driven-alerts-test.cloudfunctions.net/event-ingestion-engine\",\"https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app\"]"
+          }
+        },
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Service",
+        "spec": {
+          "template": {
+            "metadata": {
+              "name": "event-ingestion-engine-00002-rip",
+              "labels": {
+                "goog-drz-cloudfunctions-location": "us-central1",
+                "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+                "run.googleapis.com/startupProbeType": "Default"
+              },
+              "annotations": {
+                "run.googleapis.com/client-name": "gcloud",
+                "cloudfunctions.googleapis.com/trigger-type": "HTTP_TRIGGER",
+                "run.googleapis.com/secrets": "secret-653d170f-5f73-322d-adaf-4780a6818a2f:projects/961628659285/secrets/SMTP_PASSWORD",
+                "autoscaling.knative.dev/maxScale": "77",
+                "run.googleapis.com/base-images": "{\"worker\":\"us-central1-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310\"}",
+                "run.googleapis.com/startup-cpu-boost": "true"
+              }
+            },
+            "spec": {
+              "containerConcurrency": 1,
+              "timeoutSeconds": 60,
+              "serviceAccountName": "event-alerts-sa@event-driven-alerts-test.iam.gserviceaccount.com",
+              "containers": [
+                {
+                  "name": "worker",
+                  "image": "us-central1-docker.pkg.dev/event-driven-alerts-test/gcf-artifacts/event--driven--alerts--test__us--central1__event--ingestion--engine:version_1",
+                  "ports": [
+                    {
+                      "name": "http1",
+                      "containerPort": 8080
+                    }
+                  ],
+                  "env": [
+                    {
+                      "name": "NOTIFICATIONS_ENABLED",
+                      "value": "true"
+                    },
+                    {
+                      "name": "SENDER_EMAIL",
+                      "value": "testingxvaskias@gmail.com"
+                    },
+                    {
+                      "name": "SMTP_PORT",
+                      "value": "587"
+                    },
+                    {
+                      "name": "SMTP_SERVER",
+                      "value": "smtp.gmail.com"
+                    },
+                    {
+                      "name": "SMTP_USER",
+                      "value": "testingxvaskias@gmail.com"
+                    },
+                    {
+                      "name": "STAKEHOLDER_EMAIL",
+                      "value": "testingxvaskias@gmail.com"
+                    },
+                    {
+                      "name": "LOG_EXECUTION_ID",
+                      "value": "true"
+                    },
+                    {
+                      "name": "SMTP_PASSWORD",
+                      "valueFrom": {
+                        "secretKeyRef": {
+                          "key": "latest",
+                          "name": "secret-653d170f-5f73-322d-adaf-4780a6818a2f"
+                        }
+                      }
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "cpu": "0.1666",
+                      "memory": "256M"
+                    }
+                  },
+                  "startupProbe": {
+                    "timeoutSeconds": 240,
+                    "periodSeconds": 240,
+                    "failureThreshold": 1,
+                    "tcpSocket": {
+                      "port": 8080
+                    }
+                  }
+                }
+              ],
+              "runtimeClassName": "run.googleapis.com/linux-base-image-update"
+            }
+          },
+          "traffic": [
+            {
+              "percent": 100,
+              "latestRevision": true
+            }
+          ]
+        },
+        "status": {
+          "observedGeneration": 2,
+          "conditions": [
+            {
+              "type": "Ready",
+              "status": "True",
+              "lastTransitionTime": "2026-02-25T12:35:57.441987Z"
+            },
+            {
+              "type": "ConfigurationsReady",
+              "status": "True",
+              "lastTransitionTime": "2026-02-25T12:35:52.949486Z"
+            },
+            {
+              "type": "RoutesReady",
+              "status": "True",
+              "lastTransitionTime": "2026-02-25T12:35:57.392562Z"
+            }
+          ],
+          "latestReadyRevisionName": "event-ingestion-engine-00002-rip",
+          "latestCreatedRevisionName": "event-ingestion-engine-00002-rip",
+          "traffic": [
+            {
+              "revisionName": "event-ingestion-engine-00002-rip",
+              "percent": 100,
+              "latestRevision": true
+            }
+          ],
+          "url": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app",
+          "address": {
+            "url": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app"
+          }
+        },
+        "@type": "type.googleapis.com/google.cloud.run.v1.Service"
+      }
+    },
+    "insertId": "8w03cqdcqa2",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "",
+        "service_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1",
+        "configuration_name": ""
+      }
+    },
+    "timestamp": "2026-02-25T12:35:57.464460Z",
+    "severity": "INFO",
+    "logName": "projects/event-driven-alerts-test/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "receiveTimestamp": "2026-02-25T12:35:57.892997015Z"
+  },
+  {
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"worker\" on port 8080.",
+    "insertId": "699eecae0004b3886800b24a",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine",
+        "configuration_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:58.308104Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-02-25T12:35:58.423011308Z"
+  },
+  {
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"worker\" on port 8080.",
+    "insertId": "699eecae00056cd85a9f8771",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1",
+        "configuration_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:58.355544Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "00da6cd2c4fc8a1d786368f7cc9f0f9ca1e3b59c172696e810bbb29a42e6a0acdd27b53756b4afb0e502718345be385f8fc7d46c70914c76478590028a58920078643dc99945c31a7143ae09a675",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2026-02-25T12:35:58.423011308Z"
+  },
+  {
+    "textPayload": "=== PIPELINE START (v3.0.0-PRO-RESILIENT) ===",
+    "insertId": "699eecae0005e38dcc08eabc",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1",
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:58.385933Z",
+    "labels": {
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "execution_id": "3AUtlTfYcwYJ",
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47",
+      "goog-managed-by": "cloudfunctions",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-02-25T12:35:58.390907674Z",
+    "spanId": "5725282985741999987"
+  },
+  {
+    "textPayload": "=== PIPELINE START (v3.0.0-PRO-RESILIENT) ===",
+    "insertId": "699eecae000618107dadba22",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "location": "us-central1",
+        "project_id": "event-driven-alerts-test",
+        "configuration_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:35:58.399376Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "execution_id": "TzAIWWaKB3vL",
+      "instanceId": "00da6cd2c4fc8a1d786368f7cc9f0f9ca1e3b59c172696e810bbb29a42e6a0acdd27b53756b4afb0e502718345be385f8fc7d46c70914c76478590028a58920078643dc99945c31a7143ae09a675"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-02-25T12:35:58.725884477Z"
+  },
+  {
+    "textPayload": "[Pipeline] FATAL: Import failure: No module named 'httpx'",
+    "insertId": "699eecb0000be31f09d05188",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine",
+        "configuration_name": "event-ingestion-engine",
+        "location": "us-central1",
+        "project_id": "event-driven-alerts-test"
+      }
+    },
+    "timestamp": "2026-02-25T12:36:00.779039Z",
+    "labels": {
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47",
+      "execution_id": "3AUtlTfYcwYJ",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-02-25T12:36:01.054956278Z",
+    "spanId": "5725282985741999987"
+  },
+  {
+    "textPayload": "[Pipeline] FATAL: Import failure: No module named 'httpx'",
+    "insertId": "699eecb0000be41b4c2889ac",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "event-ingestion-engine",
+        "location": "us-central1",
+        "project_id": "event-driven-alerts-test",
+        "service_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip"
+      }
+    },
+    "timestamp": "2026-02-25T12:36:00.779291Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "execution_id": "TzAIWWaKB3vL",
+      "instanceId": "00da6cd2c4fc8a1d786368f7cc9f0f9ca1e3b59c172696e810bbb29a42e6a0acdd27b53756b4afb0e502718345be385f8fc7d46c70914c76478590028a58920078643dc99945c31a7143ae09a675"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-02-25T12:36:01.054956278Z"
+  },
+  {
+    "insertId": "699eecb0000cd0ed9c7a4c63",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app/favicon.ico",
+      "requestSize": "1034",
+      "status": 404,
+      "responseSize": "225",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+      "remoteIp": "172.253.192.112",
+      "referer": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app/",
+      "serverIp": "34.143.74.2",
+      "latency": "0.002814250s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "event-ingestion-engine",
+        "location": "us-central1",
+        "project_id": "event-driven-alerts-test",
+        "service_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip"
+      }
+    },
+    "timestamp": "2026-02-25T12:36:00.835357Z",
+    "severity": "WARNING",
+    "labels": {
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/event-driven-alerts-test/traces/abeace8f1baa7aed4e621a5bb438e154",
+    "receiveTimestamp": "2026-02-25T12:36:01.120977385Z",
+    "spanId": "e64ad5182a908f70"
+  },
+  {
+    "insertId": "699eecb0000d7f57e2312072",
+    "httpRequest": {
+      "requestMethod": "GET",
+      "requestUrl": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app/favicon.ico",
+      "requestSize": "1035",
+      "status": 404,
+      "responseSize": "225",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      "remoteIp": "74.125.19.45",
+      "referer": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app/",
+      "serverIp": "34.143.77.2",
+      "latency": "0.002566810s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine",
+        "configuration_name": "event-ingestion-engine",
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2026-02-25T12:36:00.880675Z",
+    "severity": "WARNING",
+    "labels": {
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/event-driven-alerts-test/traces/82916dad9e07870db47ec39424350233",
+    "receiveTimestamp": "2026-02-25T12:36:01.120977385Z",
+    "spanId": "707e177a5e99f9eb"
+  },
+  {
+    "insertId": "699eece5000a8a64384c5714",
+    "httpRequest": {
+      "requestMethod": "POST",
+      "requestUrl": "https://event-ingestion-engine-eexcw6rwoa-uc.a.run.app/",
+      "requestSize": "1301",
+      "status": 200,
+      "responseSize": "179",
+      "userAgent": "Google-Cloud-Scheduler",
+      "remoteIp": "34.98.143.164",
+      "serverIp": "34.143.78.2",
+      "latency": "0.004615449s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "event-ingestion-engine",
+        "location": "us-central1",
+        "project_id": "event-driven-alerts-test",
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:36:53.679806Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/event-driven-alerts-test/traces/a9643196bf72356e1598d1bb4ff47954",
+    "receiveTimestamp": "2026-02-25T12:36:53.697848705Z",
+    "spanId": "2e7877d2adb647aa",
+    "traceSampled": true
+  },
+  {
+    "textPayload": "=== PIPELINE START (v3.0.0-PRO-RESILIENT) ===",
+    "insertId": "699eece5000a81a8b03b28c0",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "event-driven-alerts-test",
+        "location": "us-central1",
+        "configuration_name": "event-ingestion-engine",
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine"
+      }
+    },
+    "timestamp": "2026-02-25T12:36:53.688552Z",
+    "labels": {
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47",
+      "execution_id": "NoPqNPnqG5ts",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-02-25T12:36:53.694184314Z",
+    "spanId": "3348558069691205546"
+  },
+  {
+    "textPayload": "[Pipeline] FATAL: Import failure: No module named 'httpx'",
+    "insertId": "699eece5000a8713e215a88e",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "event-ingestion-engine-00002-rip",
+        "service_name": "event-ingestion-engine",
+        "configuration_name": "event-ingestion-engine",
+        "location": "us-central1",
+        "project_id": "event-driven-alerts-test"
+      }
+    },
+    "timestamp": "2026-02-25T12:36:53.689939Z",
+    "labels": {
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "00da6cd2c4020aef6bd4527b6c0093018aa20ebfa90a2c30b7943d7ce74191347c6912ab9e1e35b24e94eba2c60ef02bee77508d8177e67fe558518e246efd7bb036006fb9823a3b9f318e4b9e47",
+      "execution_id": "NoPqNPnqG5ts",
+      "goog-drz-cloudfunctions-id": "event-ingestion-engine",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/python310:python310_20260207_3_10_19_RC00"
+    },
+    "logName": "projects/event-driven-alerts-test/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-02-25T12:36:54.027952544Z",
+    "spanId": "3348558069691205546"
+  }
+]
